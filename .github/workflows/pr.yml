@@ -47,6 +47,8 @@ jobs:
 
       - run: echo "Should NOT run on PR comment"
         if: github.event_name != 'issue_comment'
+      
+      - run: sleep 60
 
       - name: Report success status
         run: |
