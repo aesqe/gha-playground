@@ -50,7 +50,7 @@ jobs:
       
       - run: sleep 60
 
-      - name: Report success status
+      - name: Set success status
         run: |
           curl --request POST \
           --url https://api.github.com/repos/${{ github.event.repository.owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }} \
