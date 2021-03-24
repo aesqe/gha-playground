@@ -33,7 +33,7 @@ jobs:
     steps:
       - run: echo "Should run always"
 
-      - name: Report pending status
+      - name: Set pending status
         if: github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
         run: |
           curl --request POST \
