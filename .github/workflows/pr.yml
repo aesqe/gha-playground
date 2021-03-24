@@ -1,3 +1,5 @@
+name: PR tests
+
 on:
   pull_request:
     branches: [master]
@@ -30,7 +32,7 @@ jobs:
     steps:
       - run: echo "Should run always"
 
-      - name: Report pending
+      - name: Report pending status
         if: github.event.action == 'comment' && contains(github.event.comment.html_url, '/pull/')
         run: |
           curl --request POST \
