@@ -2,7 +2,7 @@ name: PR tests
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
   issue_comment:
     types: [created]
 
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: $github
-      run:   echo "$GITHUB_CONTEXT"
+      run: echo "$GITHUB_CONTEXT"
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
 
@@ -20,8 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'pull_request' ||
-      contains(github.event.comment.html_url, '/pull/') &&
       (
+        github.event_name == 'issue_comment' &&
+        contains(github.event.comment.html_url, '/pull/') &&
         contains(github.event.comment.body, '@toptal-bot run') &&
         (
           contains(github.event.comment.body, 'test') ||
@@ -33,7 +34,7 @@ jobs:
       - run: echo "Should run always"
 
       - name: Report pending status
-        if: github.event.action == 'comment' && contains(github.event.comment.html_url, '/pull/')
+        if: github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
         run: |
           curl --request POST \
           --url https://api.github.com/repos/${{ github.event.repository.owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }} \
@@ -42,10 +43,10 @@ jobs:
           --data '{ "state": "pending", "context": "ci/tests" }'
         
       - run: echo "Should run on PR comment"
-        if: github.event.action == 'comment'
+        if: github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
 
       - run: echo "Should NOT run on PR comment"
-        if: github.event.action != 'comment'
+        if: github.event_name != 'issue_comment'
 
       - name: Report success
         run: |
@@ -54,4 +55,4 @@ jobs:
           --header 'authorization: token ${{ secrets.TOPTAL_DEVBOT_TOKEN }}' \
           --header 'content-type: application/json' \
           --data '{ "state": "success", "target_url": "https://example.com/build/status", "description": "The tests succeeded!", "context": "ci/tests" }'
-        if: success() && github.event.action == 'comment' && contains(github.event.comment.html_url, '/pull/')
+        if: success() && github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
