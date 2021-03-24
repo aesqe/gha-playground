@@ -37,8 +37,8 @@ jobs:
         if: github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
         run: |
           curl --request POST \
-          --url https://api.github.com/repos/${{ github.event.repository.owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }} \
-          --header 'authorization: token ${{ secrets.DEV_TOKEN }}' \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+          --header 'authorization: token ${{ github.token }}' \
           --header 'content-type: application/json' \
           --data '{ "state": "pending", "context": "ci/tests" }'
         
@@ -48,13 +48,13 @@ jobs:
       - run: echo "Should NOT run on PR comment"
         if: github.event_name != 'issue_comment'
       
-      - run: sleep 60
+      - run: sleep 59
 
       - name: Set success status
         run: |
           curl --request POST \
-          --url https://api.github.com/repos/${{ github.event.repository.owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }} \
-          --header 'authorization: token ${{ secrets.DEV_TOKEN }}' \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+          --header 'authorization: token ${{ github.token }}' \
           --header 'content-type: application/json' \
           --data '{ "state": "success", "target_url": "https://example.com/build/status", "description": "The tests succeeded!", "context": "ci/tests" }'
         if: success() && github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
