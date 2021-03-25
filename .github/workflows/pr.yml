@@ -39,14 +39,14 @@ jobs:
       - name: Get PR informations
         id: pr_data
         run: |
-          echo "::set-env name=sha::${{ fromJson(steps.request.outputs.data).head.sha }}"
+          echo "sha=${{ fromJson(steps.request.outputs.data).head.sha }}" >> $GITHUB_ENV
 
       - name: Get the run id
         id: run-id
         run: |
           CHECK_SUITE_URL=$(curl -s -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} | jq -r '.check_suite_url')
           CHECK_RUN_ID=$(curl -s -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.antiope-preview+json" $CHECK_SUITE_URL/check-runs | jq '.check_runs[] | select(.name=="Test @toptal-bot run comments") | .id ')
-          echo ::set-env name=runId::$CHECK_RUN_ID
+          echo "runId=$CHECK_RUN_ID" >> $GITHUB_ENV
 
       - uses: actions/github-script@v3
         with:
@@ -72,4 +72,4 @@ jobs:
 
     steps:
       - run: echo "test"
-      - run: sleep 31
+      - run: sleep 30
