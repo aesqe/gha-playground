@@ -56,8 +56,8 @@ jobs:
             const request = {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              head_sha: '${{ env.sha }}',
               name: 'Test job',
+              head_sha: '${{ env.sha }}',
               check_run_id: '${{ env.runId }}'
             }
             try {
@@ -73,3 +73,4 @@ jobs:
 
     steps:
       - run: echo "test"
+      - run: sleep 30
