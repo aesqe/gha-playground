@@ -56,8 +56,8 @@ jobs:
             const request = {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: 'Test job',
               head_sha: '${{ env.sha }}',
+              name: 'Test job',
               check_run_id: '${{ env.runId }}'
             }
             try {
