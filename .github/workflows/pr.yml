@@ -14,47 +14,62 @@ jobs:
       run: echo "$GITHUB_CONTEXT"
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-
-  testprcomments:
+  
+  testjobrunoncomments:
     name: Test @toptal-bot run comments
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'pull_request' ||
+      github.event_name == 'pull_request' &&
+      github.event_name == 'issue_comment' &&
+      contains(github.event.comment.html_url, '/pull/') &&
+      contains(github.event.comment.body, '@toptal-bot run') &&
       (
-        github.event_name == 'issue_comment' &&
-        contains(github.event.comment.html_url, '/pull/') &&
-        contains(github.event.comment.body, '@toptal-bot run') &&
-        (
-          contains(github.event.comment.body, 'test') ||
-          contains(github.event.comment.body, 'all')
-        )
+        contains(github.event.comment.body, 'test') ||
+        contains(github.event.comment.body, 'all')
       )
 
     steps:
-      - run: echo "Should run always"
+      - name: Github API Request
+        id: request
+        uses: octokit/request-action@v2.0.0
+        with:
+          route: ${{ github.event.issue.pull_request.url }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set pending status
-        if: github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
+      - name: Get PR informations
+        id: pr_data
         run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-          --header 'authorization: token ${{ github.token }}' \
-          --header 'content-type: application/json' \
-          --data '{ "state": "pending", "context": "ci/tests" }'
-        
-      - run: echo "Should run on PR comment"
-        if: github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
+          echo "::set-env name=sha::${{ fromJson(steps.request.outputs.data).head.sha }}"
 
-      - run: echo "Should NOT run on PR comment"
-        if: github.event_name != 'issue_comment'
-      
-      - run: sleep 59
-
-      - name: Set success status
+      - name: Get the run id
+        id: run-id
         run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-          --header 'authorization: token ${{ github.token }}' \
-          --header 'content-type: application/json' \
-          --data '{ "state": "success", "target_url": "https://example.com/build/status", "description": "The tests succeeded!", "context": "ci/tests" }'
-        if: success() && github.event_name == 'issue_comment' && contains(github.event.comment.html_url, '/pull/')
+          CHECK_SUITE_URL=$(curl -s -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} | jq -r '.check_suite_url')
+          CHECK_RUN_ID=$(curl -s -H "authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.antiope-preview+json" $CHECK_SUITE_URL/check-runs | jq '.check_runs[] | select(.name=="Test @toptal-bot run comments") | .id ')
+          echo ::set-env name=runId::$CHECK_RUN_ID
+
+      - uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const request = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: '${{ env.sha }}',
+              name: 'Test job',
+              check_run_id: '${{ env.runId }}'
+            }
+            try {
+              const result = await github.checks.update(request)
+              return result.data
+            } catch (err) {
+              core.setFailed(`Request failed with error ${err}`)
+            }
+
+  testjob:
+    name: Test job
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo "test"
