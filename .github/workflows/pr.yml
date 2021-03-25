@@ -24,7 +24,7 @@ jobs:
       contains(github.event.comment.body, '@toptal-bot run') &&
       (
         contains(github.event.comment.body, 'test') ||
-        contains(github.event.comment.body, 'all')
+        contains(github.event.comment.body, 'allc')
       )
 
     steps:
@@ -72,4 +72,4 @@ jobs:
 
     steps:
       - run: echo "test"
-      - run: sleep 30
+      - run: sleep 31
