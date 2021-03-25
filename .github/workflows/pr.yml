@@ -19,7 +19,6 @@ jobs:
     name: Test @toptal-bot run comments
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'pull_request' &&
       github.event_name == 'issue_comment' &&
       contains(github.event.comment.html_url, '/pull/') &&
       contains(github.event.comment.body, '@toptal-bot run') &&
@@ -73,4 +72,4 @@ jobs:
 
     steps:
       - run: echo "test"
-      - run: sleep 30
+      - run: sleep 31
