@@ -72,4 +72,4 @@ jobs:
 
     steps:
       - run: echo "test"
-      - run: sleep 30
+      - run: sleep 31
