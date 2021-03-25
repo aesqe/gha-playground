@@ -56,11 +56,10 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               name: 'Test job',
-              head_sha: '${{ env.sha }}',
-              check_run_id: '${{ env.runId }}'
+              head_sha: '${{ env.sha }}'
             }
             try {
-              const result = await github.checks.update(request)
+              const result = await github.checks.create(request)
               return result.data
             } catch (err) {
               core.setFailed(`Request failed with error ${err}`)
@@ -69,6 +68,7 @@ jobs:
   testjob:
     name: Test job
     runs-on: ubuntu-latest
+    if: github.event_name != 'issue_comment'
 
     steps:
       - run: echo "test"
