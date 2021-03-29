@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          echo "PR test 1 1"
+          echo "PR test 2 1"
           sleep 30
   
   pr22:
@@ -19,5 +19,5 @@ jobs:
 
     steps:
       - run: |
-          echo "PR test 1 2"
+          echo "PR test 2 2"
           sleep 30
