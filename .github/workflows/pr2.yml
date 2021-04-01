@@ -5,19 +5,19 @@ on:
     branches: [main]
   issue_comment:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch name
+        required: true
+        default: master
 
 jobs:
   pr21:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "PR test 2 1"
-          sleep 31
-  
-  pr22:
-    runs-on: ubuntu-latest
+      - uses: actions/checkout@v2
 
-    steps:
-      - run: |
-          echo "PR test 2 2"
-          sleep 31
+      - uses: hmarr/debug-action@v2
+
+      - run: sleep 30

@@ -1,4 +1,4 @@
-name: PR tests 1
+name: Jest
 
 on:
   pull_request:
@@ -7,17 +7,7 @@ on:
     types: [created]
 
 jobs:
-  pr21:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "PR test 1 1"
-          sleep 30
-  
-  pr22:
-    runs-on: ubuntu-latest
-
-    steps:
-      - run: |
-          echo "PR test 1 2"
-          sleep 30
+      - run: sleep 30
