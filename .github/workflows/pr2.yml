@@ -27,14 +27,13 @@ jobs:
         env:
           bar: ${{ github.event.inputs.branch || 'branch name' }}
       
-      - run: ls -al
+      - run: cat /etc/passwd
 
       - name: Read coverage.json
         id: min-coverage
         uses: actions/github-script@v3.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           result-encoding: string
-          script: return require("./coverage.json").minCoverage
+          script: return JSON.parse(require('fs').readFileSync('coverage.json')).minCoverage
 
       - run: sleep 30

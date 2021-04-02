@@ -1,0 +1,59 @@
+name: Publish alpha package (legacy)
+
+on:
+  issue_comment:
+    types: [created]
+
+env:
+  # NPM_TOKEN: ${{ secrets.NPM_TOKEN_PUBLISH }}
+  # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  COMMENT_BODY: ${{ github.event.comment.body }}
+  # SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_SOURCEMAP_UPLOAD_TOKEN }}
+
+jobs:
+  publish:
+    name: Publish alpha package (legacy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: |
+      contains(github.event.comment.html_url, '/pull/') &&
+      contains(github.event.comment.body, '@toptal-bot run') &&
+      (
+        contains(github.event.comment.body, 'package:alpha-release') ||
+        contains(github.event.comment.body, 'package:alpha-release-legacy')
+      )
+
+    steps:
+      - name: Dump context
+        uses: crazy-max/ghaction-dump-context@v1
+
+      # - name: Checkout PR code
+      #   uses: actions/checkout@v2
+      
+      # - name: Get commit author
+      #   id: get-commit-author
+      #   working-directory: ./app
+      #   run: |
+      #     echo "GIT_COMMITTER_NAME=$(git log '${{ github.sha }}' -1 --pretty=format:'%an')" >> $GITHUB_ENV
+      #     echo "GIT_COMMITTER_EMAIL=$(git log '${{ github.sha }}' -1 --pretty=format:'%ae')" >> $GITHUB_ENV
+        
+      # - name: Publish the package
+      #   env:
+      #     GIT_BRANCH: github.event.head_ref
+      #   run: |
+      #     if [[ "$COMMENT_BODY" == *"package:alpha-release-legacy"* ]]
+      #     then
+      #       yarn build:package:legacy
+      #     else
+      #       yarn build:package
+      #     fi
+
+      #     rm -rf ./dist-package
+      #     mv ./dist/platform ./dist-package
+
+      #     npx davinci engine publish-package \
+      #     --alpha \
+      #     --outputVersion .version \
+      #     --branch ${{  }}
+
+      #     echo "NEW_PACKAGE_VERSION=$(cat .version)" >> $GITHUB_ENV
