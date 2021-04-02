@@ -20,4 +20,11 @@ jobs:
 
       - uses: hmarr/debug-action@v2
 
+      - run: |
+          echo "foo"
+          echo "$bar"
+          echo ${{ github.event.inputs.branch }}
+        env:
+          bar: ${{ github.event.inputs.branch || 'branch name' }}
+
       - run: sleep 30
