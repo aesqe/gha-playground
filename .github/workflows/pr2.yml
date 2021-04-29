@@ -1,4 +1,4 @@
-name: PR tests 2
+name: Cypress
 
 on:
   pull_request:
@@ -13,11 +13,27 @@ on:
         default: master
 
 jobs:
-  pr21:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
       - uses: hmarr/debug-action@v2
+
+      - run: |
+          echo "foo"
+          echo "$bar"
+          echo ${{ github.event.inputs.branch }}
+        env:
+          bar: ${{ github.event.inputs.branch || 'branch name' }}
+      
+      - run: cat /etc/passwd
+
+      - name: Read coverage.json
+        id: min-coverage
+        uses: actions/github-script@v3.0.0
+        with:
+          result-encoding: string
+          script: return JSON.parse(require('fs').readFileSync('coverage.json')).minCoverage
 
       - run: sleep 30
