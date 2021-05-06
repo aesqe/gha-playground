@@ -1,81 +1,31 @@
-name: Publish alpha package
+name: test permissions
 
 on:
-  issue_comment:
-    types: [created]
-
-env:
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN_PUBLISH }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_SOURCEMAP_UPLOAD_TOKEN }}
-  COMMENT_BODY: ${{ github.event.comment.body }}
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch name
+        required: true
+        default: master
 
 jobs:
-  publish:
-    name: Publish alpha package (legacy)
+  buildandpushimage:
+    name: Build and push release image
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    if: |
-      contains(github.event.comment.html_url, '/pull/') &&
-      contains(github.event.comment.body, '@toptal-bot run') &&
-      (
-        contains(github.event.comment.body, 'package:alpha-release') ||
-        contains(github.event.comment.body, 'package:alpha-release-legacy')
-      )
+    timeout-minutes: 25
 
     steps:
-      - name: Checkout PR code
-        uses: actions/checkout@v2
-
-      - name: Set environment vars
-        run: |
-          echo "GIT_BRANCH=$(git branch --show-current)" >> $GITHUB_ENV
-          echo "GIT_COMMITTER_EMAIL=$(git log '${{ github.sha }}' -1 --pretty=format:'%ce')" >> $GITHUB_ENV
-          echo "GIT_COMMITTER_NAME=$(git log '${{ github.sha }}' -1 --pretty=format:'%cn')" >> $GITHUB_ENV
-
-      - name: Publish the package
-        run: |
-          if [[ "$COMMENT_BODY" == *"package:alpha-release-legacy"* ]]
-          then
-            echo "IS_LEGACY_BUILD=true" >> $GITHUB_ENV
-          else
-            echo "IS_LEGACY_BUILD=false" >> $GITHUB_ENV
-          fi
-
-          echo ${{ github.sha }} >> .version
-
-          echo "NEW_VERSION=$(cat .version)" >> $GITHUB_ENV
-
-      - name: Create PR comment (success)
-        if: ${{ success() }}
-        uses: actions/github-script@v3.1.0
+      - name: Check user permissions
+        uses: InstaCode/lockdown@0ff28e6b91305e8737c597cff73c56ce5a146fda
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const version = process.env.NEW_VERSION
-            const isLikelyMonorepo = /@toptal\/picasso|@topkit/.test(version)
-            const legacy = process.env.IS_LEGACY_BUILD === 'true' ? ' (legacy)' : ''
+          users: PeterMK85, denieler
 
-            const notes = isLikelyMonorepo
-              ? version.split('\n').map(name => `\`yarn add ${name}\``).join('<br />')
-              : `Alpha package release: \`yarn add @toptal/billing-frontend-legacy@${version}\``
+      - name: failure
+        if: failure()
+        run: |
+          echo "failure"
 
-            github.issues.createComment({
-              issue_number: context.payload.issue.number,
-              owner: context.payload.repository.owner.login,
-              repo: context.payload.repository.name,
-              body: `Your alpha package${legacy} is ready :tada:<br/>${notes}`
-            })
-
-      - name: Create PR comment (failure)
-        if: ${{ failure() }}
-        uses: actions/github-script@v3.1.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.issues.createComment({
-              issue_number: context.payload.issue.number,
-              owner: context.payload.repository.owner.login,
-              repo: context.payload.repository.name,
-              body: 'Your alpha package was not released :x:<br/>It looks like publish-alpha-package job failed for some reason.'
-            })
+      - name: success
+        if: success()
+        run: |
+          echo "success"
