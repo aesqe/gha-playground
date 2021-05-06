@@ -18,7 +18,7 @@ jobs:
       - name: Check user permissions
         uses: InstaCode/lockdown@0ff28e6b91305e8737c597cff73c56ce5a146fda
         with:
-          users: PeterMK85, denieler
+          users: PeterMK85, denieler, aesqe
 
       - name: failure
         if: failure()
