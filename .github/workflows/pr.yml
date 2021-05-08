@@ -12,7 +12,7 @@ jobs:
         uses: crazy-max/ghaction-dump-context@v1
 
       - run: |
-          PR_DATA = $(curl \
+          PR_DATA=$(curl \
             -H "Accept: application/vnd.github.v3+json" \
             ${GITHUB_API_URL}/repos/${{ github.event.issue.pull_request.html_url }}
           )
