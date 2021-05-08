@@ -1,8 +1,6 @@
 name: Jest
 
 on:
-  pull_request:
-    branches: [main]
   issue_comment:
     types: [created]
 
@@ -10,4 +8,5 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - run: sleep 30
+      - run: echo "GIT_BRANCH=${{ github.ref }}" >> $GITHUB_ENV
+      - run: echo ${GIT_BRANCH#refs/heads/}
