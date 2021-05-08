@@ -8,5 +8,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Dump context
+        uses: crazy-max/ghaction-dump-context@v1
+
       - run: echo "GIT_BRANCH=${{ github.ref }}" >> $GITHUB_ENV
-      - run: echo ${GIT_BRANCH#refs/heads/}
+
+      - run: |
+          PR_DATA = $(curl \
+            -H "Accept: application/vnd.github.v3+json" \
+            ${GITHUB_API_URL}/repos/${{ github.event.issue.pull_request.html_url }}
+          )
+
+          echo ${PR_DATA}
+          echo $(${PR_DATA} | jq '.head.ref')
