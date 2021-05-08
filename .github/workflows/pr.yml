@@ -12,7 +12,6 @@ jobs:
         uses: crazy-max/ghaction-dump-context@v1
 
       - run: |
-          PR_DATA=$(curl -H "Accept: application/vnd.github.v3+json" ${{ github.event.issue.pull_request.url }})
+          echo "PR_BRANCH=$(curl -H "Accept: application/vnd.github.v3+json" ${{ github.event.issue.pull_request.url }} | jq '.head.ref')" >> $GITHUB_ENV
 
-          echo ${PR_DATA}
-          echo ${PR_DATA} | jq '.head.ref'
+      - run: echo ${{ env.PR_BRANCH }}
