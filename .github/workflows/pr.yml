@@ -12,6 +12,18 @@ jobs:
         uses: crazy-max/ghaction-dump-context@v1
 
       - run: |
-          echo "PR_BRANCH=$(curl -H "Accept: application/vnd.github.v3+json" ${{ github.event.issue.pull_request.url }} | jq '.head.ref')" >> $GITHUB_ENV
+          echo "PR_BRANCH=$(\
+            curl \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              ${{ github.event.issue.pull_request.url }} | jq '.head.ref'\
+          )" >> $GITHUB_ENV
 
       - run: echo ${{ env.PR_BRANCH }}
+
+      - run: echo $(git branch --show-current)
+
+      - name: Checkout PR code
+        uses: actions/checkout@v2
+
+      - run: echo $(cat test.txt)
