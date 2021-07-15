@@ -1,29 +1,22 @@
-name: Jest
+name: Test PR Workflow
 
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [main]
 
 jobs:
-  test:
+  danger:
+    if: ${{ github.event.pull_request.action == 'edited' || 'opened' || 'synchronize' || 'reopened'}}
+    name: Show some text
     runs-on: ubuntu-latest
     steps:
-      - name: Dump context
-        uses: crazy-max/ghaction-dump-context@v1
+      - name: Show some text
+        run: echo "THIS IS DANGER TEST"
 
-      - run: |
-          echo "PR_BRANCH=$(\
-            curl \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              ${{ github.event.issue.pull_request.url }} | jq '.head.ref'\
-          )" >> $GITHUB_ENV
-
-      - run: echo ${{ env.PR_BRANCH }}
-
-      - run: echo $(git branch --show-current)
-
-      - name: Checkout PR code
-        uses: actions/checkout@v2
-
-      - run: echo $(cat test.txt)
+  secondjob:
+    if: ${{ github.event.pull_request.action == 'opened' || 'synchronize' || 'reopened'}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show some text
+        run: echo "THIS IS SECOND JOB"
