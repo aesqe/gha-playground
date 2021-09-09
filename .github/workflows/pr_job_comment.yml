@@ -1,0 +1,73 @@
+name: PR Comments
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  triggerPrWorkflow:
+    name: Trigger PR Workflow
+    if: >
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '@toptal-bot run') &&
+      (
+        endsWith(github.event.comment.body, 'required') ||
+        endsWith(github.event.comment.body, 'lint') ||
+        endsWith(github.event.comment.body, 'jest') ||
+        endsWith(github.event.comment.body, 'pact') ||
+        endsWith(github.event.comment.body, 'cypress') ||
+        endsWith(github.event.comment.body, 'temploy')
+      )
+
+    runs-on: ubuntu-latest
+    env:
+      TRIGGER_COMMENT: ${{ github.event.comment.body }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Set initial check status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        with:
+          pr_number: ${{ github.event.issue.number }}
+          state: pending
+          repository: ${{ github.repository }}
+          context: 'PR Comments / Trigger PR Workflow'
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - id: prData
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const pr = await github.pulls.get({ owner, repo, pull_number: number });
+            core.setOutput('ref', pr.data.head.ref)
+            core.setOutput('sha', pr.data.head.sha)
+
+      - name: Trigger test workflow
+        if: ${{ endsWith(env.TRIGGER_COMMENT, 'required') || endsWith(env.TRIGGER_COMMENT, 'jest') }}
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: test
+          token: ${{ secrets.DEV_TOKEN }}
+          ref: ${{ steps.prRef.outputs.prRef }}
+          inputs: '{"prRef": "${{ steps.prData.outputs.ref }}, "prNumber": "${{ github.event.issue.number }}"}'
+
+      - name: Set success or failure status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        if: ${{ success() || failure() }}
+        with:
+          pr_number: ${{ github.event.issue.number }}
+          state: ${{ job.status }}
+          repository: ${{ github.repository }}
+          context: 'PR Comments / Trigger PR Workflow'
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Set error status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        if: ${{ cancelled() }}
+        with:
+          pr_number: ${{ github.event.issue.number }}
+          state: error
+          repository: ${{ github.repository }}
+          context: 'PR Comments / Trigger PR Workflow'
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
