@@ -57,7 +57,7 @@ jobs:
           pr_number: ${{ github.event.issue.number }}
           state: ${{ job.status }}
           repository: ${{ github.repository }}
-          context: 'PR Comments / Trigger PR Workflow'
+          context: 'test / Build image (pull_request)'
           target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Set error status
