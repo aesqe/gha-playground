@@ -48,7 +48,7 @@ jobs:
         with:
           workflow: test
           token: ${{ secrets.DEV_TOKEN }}
-          ref: ${{ steps.prRef.outputs.prRef }}
+          ref: ${{ steps.prData.outputs.ref }}
           inputs: '{"prRef": "${{ steps.prData.outputs.ref }}, "prNumber": "${{ github.event.issue.number }}"}'
 
       - name: Set success or failure status
