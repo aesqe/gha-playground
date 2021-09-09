@@ -1,22 +1,36 @@
-name: Jest
+name: test
 
 on:
   pull_request:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      prRef:
+        description: 'Ref for the current PR'
+        required: true
+      prNumber:
+        description: 'Number of the current PR'
+        required: true
+      sha:
+        description: 'SHA of the latest commit'
+        required: true
+env:
+  PR_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prRef || github.ref }}
+  PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prNumber || github.event.number }}
+  SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.sha || github.sha }}
 
 jobs:
   test:
+    name: Build image
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
     steps:
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
-      
-      - name: Checkout
+
+      - name: test
         uses: actions/checkout@v2.3.4
         with:
-          ref: ${{ github.sha }}
-
-      - run: ./.github/scripts/test.sh
-
-      - run: echo ${{ env.TESTVAR }}
+          ref: ${{ env.PR_REF }}
 
