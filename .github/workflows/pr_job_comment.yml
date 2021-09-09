@@ -29,7 +29,7 @@ jobs:
           pr_number: ${{ github.event.issue.number }}
           state: pending
           repository: ${{ github.repository }}
-          context: 'test / Build image (pull_request)'
+          context: 'PR Comments / Trigger PR Workflow'
           target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - id: prData
@@ -48,7 +48,7 @@ jobs:
           workflow: test
           token: ${{ secrets.DEV_TOKEN }}
           ref: ${{ steps.prData.outputs.ref }}
-          inputs: '{"prRef": "${{ steps.prData.outputs.ref }}", "prNumber": "${{ github.event.issue.number }}", "sha": "${{ github.sha }}"}'
+          inputs: '{"prRef": "${{ steps.prData.outputs.ref }}", "prNumber": "${{ github.event.issue.number }}", "sha": "${{ steps.prData.outputs.sha }}"}'
 
       - name: Set success or failure status
         uses: niteoweb/pull_request_status_action@v1.0.0
@@ -57,7 +57,7 @@ jobs:
           pr_number: ${{ github.event.issue.number }}
           state: ${{ job.status }}
           repository: ${{ github.repository }}
-          context: 'test / Build image (pull_request)'
+          context: 'PR Comments / Trigger PR Workflow'
           target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Set error status
@@ -67,5 +67,5 @@ jobs:
           pr_number: ${{ github.event.issue.number }}
           state: error
           repository: ${{ github.repository }}
-          context: 'test / Build image (pull_request)'
+          context: 'PR Comments / Trigger PR Workflow'
           target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
