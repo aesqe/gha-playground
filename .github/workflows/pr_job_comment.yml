@@ -18,7 +18,6 @@ jobs:
         endsWith(github.event.comment.body, 'cypress') ||
         endsWith(github.event.comment.body, 'temploy')
       )
-
     runs-on: ubuntu-latest
     env:
       TRIGGER_COMMENT: ${{ github.event.comment.body }}
@@ -49,7 +48,7 @@ jobs:
           workflow: test
           token: ${{ secrets.DEV_TOKEN }}
           ref: ${{ steps.prData.outputs.ref }}
-          inputs: '{"prRef": "${{ steps.prData.outputs.ref }}", "prNumber": "${{ github.event.issue.number }}"}'
+          inputs: '{"prRef": "${{ steps.prData.outputs.ref }}", "prNumber": "${{ github.event.issue.number }}", "sha": "${{ github.sha }}"}'
 
       - name: Set success or failure status
         uses: niteoweb/pull_request_status_action@v1.0.0
