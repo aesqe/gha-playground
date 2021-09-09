@@ -28,9 +28,10 @@ jobs:
     steps:
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
-
+      
       - name: test
-        uses: actions/checkout@v2.3.4
-        with:
-          ref: ${{ env.PR_REF }}
+        run: |
+          echo ${{ env.PR_REF }}
+          echo ${{ github.event }}
+          echo ${{ github.event.inputs }}
 
