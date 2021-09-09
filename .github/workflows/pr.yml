@@ -23,6 +23,7 @@ env:
   PR_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prRef || github.ref }}
   PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prNumber || github.event.number }}
   SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.sha || github.sha }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   test:
