@@ -14,6 +14,11 @@ on:
       sha:
         description: 'SHA of the latest commit'
         required: true
+
+concurrency:
+  group: test-${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prRef || github.ref }}
+  cancel-in-progress: true        
+
 env:
   PR_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prRef || github.ref }}
   PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prNumber || github.event.number }}
@@ -26,12 +31,43 @@ jobs:
     timeout-minutes: 45
 
     steps:
+      - name: Set initial check status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        with:
+          pr_number: ${{ env.PR_NUMBER }}
+          state: pending
+          repository: ${{ github.repository }}
+          context: 'test / Build image'
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
       
       - name: test
         run: |
           echo ${{ env.PR_REF }}
+          echo ${{ env.PR_NUMBER }}
+          echo ${{ env.SHA }}
           echo ${{ github.event }}
           echo ${{ github.event.inputs }}
+          
+      - name: Set success or failure status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        if: ${{ success() || failure() }}
+        with:
+          pr_number: ${{ env.PR_NUMBER }}
+          state: ${{ job.status }}
+          repository: ${{ github.repository }}
+          context: 'test / Build image'
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Set error status
+        uses: niteoweb/pull_request_status_action@v1.0.0
+        if: ${{ cancelled() }}
+        with:
+          pr_number: ${{ env.PR_NUMBER }}
+          state: error
+          repository: ${{ github.repository }}
+          context: 'test / Build image'
+          target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
