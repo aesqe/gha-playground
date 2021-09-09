@@ -49,7 +49,7 @@ jobs:
           workflow: test
           token: ${{ secrets.DEV_TOKEN }}
           ref: ${{ steps.prData.outputs.ref }}
-          inputs: '{"prRef": "${{ steps.prData.outputs.ref }}, "prNumber": "${{ github.event.issue.number }}"}'
+          inputs: '{"prRef": "${{ steps.prData.outputs.ref }}", "prNumber": "${{ github.event.issue.number }}"}'
 
       - name: Set success or failure status
         uses: niteoweb/pull_request_status_action@v1.0.0
