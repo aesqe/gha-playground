@@ -1,29 +1,37 @@
-name: Jest
+name: test
 
 on:
-  issue_comment:
-    types: [created]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      prRef:
+        description: 'Ref for the current PR'
+        required: true
+      prNumber:
+        description: 'Number of the current PR'
+        required: true
+      sha:
+        description: 'SHA of the latest commit'
+        required: true
+env:
+  PR_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prRef || github.ref }}
+  PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prNumber || github.event.number }}
+  SHA: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.sha || github.sha }}
 
 jobs:
   test:
+    name: Build image
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
     steps:
       - name: Dump context
         uses: crazy-max/ghaction-dump-context@v1
+      
+      - name: test
+        run: |
+          echo ${{ env.PR_REF }}
+          echo ${{ github.event }}
+          echo ${{ github.event.inputs }}
 
-      - run: |
-          echo "PR_BRANCH=$(\
-            curl \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              ${{ github.event.issue.pull_request.url }} | jq '.head.ref'\
-          )" >> $GITHUB_ENV
-
-      - run: echo ${{ env.PR_BRANCH }}
-
-      - run: echo $(git branch --show-current)
-
-      - name: Checkout PR code
-        uses: actions/checkout@v2
-
-      - run: echo $(cat test.txt)
