@@ -23,7 +23,6 @@ jobs:
     env:
       TRIGGER_COMMENT: ${{ github.event.comment.body }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - name: Set initial check status
         uses: niteoweb/pull_request_status_action@v1.0.0
