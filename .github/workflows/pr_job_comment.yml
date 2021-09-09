@@ -29,7 +29,7 @@ jobs:
           pr_number: ${{ github.event.issue.number }}
           state: pending
           repository: ${{ github.repository }}
-          context: 'PR Comments / Trigger PR Workflow'
+          context: 'test / Build image (pull_request)'
           target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - id: prData
@@ -67,5 +67,5 @@ jobs:
           pr_number: ${{ github.event.issue.number }}
           state: error
           repository: ${{ github.repository }}
-          context: 'PR Comments / Trigger PR Workflow'
+          context: 'test / Build image (pull_request)'
           target_url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
